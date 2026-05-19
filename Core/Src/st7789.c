@@ -36,7 +36,7 @@
 
 #define LCD_BUFFER_LENGTH (ST7789_WIDTH_MODIFIED * ST7789_HOR_LEN)
 
-uint16_t LCDBuffer[LCD_BUFFER_LENGTH];
+uint8_t LCDBuffer[LCD_BUFFER_LENGTH];
 
 #endif
 
@@ -340,8 +340,7 @@ void ST7789_FillScreen(ST7789_ColorTypeDef Color)
 	#ifdef ST7789_USE_DMA
 
 	uint32_t colorCounter;
-	uint16_t newColor = (Color & 0xFF) << 8|(Color >> 8);
-
+	//uint16_t newColor = (Color & 0xFF) << 8|(Color >> 8);
 	#else
 	uint8_t colorBuff[2] = {Color >> 8, Color & 0xFF};
 	#endif
@@ -351,14 +350,15 @@ void ST7789_FillScreen(ST7789_ColorTypeDef Color)
 	/* ------------- Transmit LCD Buffer ------------ */
 	#ifdef ST7789_USE_DMA
 	
-	for (colorCounter = 0; colorCounter < (sizeof(LCDBuffer) / 2); colorCounter++)
+	for (colorCounter = 0; colorCounter < sizeof(LCDBuffer); colorCounter+=2)
 	{
-		LCDBuffer[colorCounter] = newColor;
+		LCDBuffer[colorCounter] = (Color >> 8);
+		LCDBuffer[colorCounter+1] = (Color & 0xFF);
 	}
 	
-	for (widthCounter = 0; widthCounter < packetSize; widthCounter++)
+	for (widthCounter = 0; widthCounter < (packetSize*2); widthCounter++)
 	{
-		ST7789_TransmitData((uint8_t *)LCDBuffer, sizeof(LCDBuffer));
+		ST7789_TransmitData(LCDBuffer, sizeof(LCDBuffer));
 	}
 
 	#else

@@ -92,9 +92,8 @@ void ST7789_TransmitData(uint8_t *Data, uint32_t Size)
 	
 	/* ---------------- Transmit Data --------------- */	
 
-	ST7789_SPI_Transmit_DMA(Data, Size);
-				while (ST7789_SPI.State != ST7789_SPI_STATE_READY) { }
-#if 0
+
+#if 1
 	while (Size > 0)
 	{
 		
@@ -360,7 +359,7 @@ void ST7789_FillScreen(ST7789_ColorTypeDef Color)
 		LCDBuffer[colorCounter+1] = (Color & 0xFF);
 	}
 	
-	for (widthCounter = 0; widthCounter < (packetSize*2+1); widthCounter++)
+	for (widthCounter = 0; widthCounter < (packetSize*2); widthCounter++)
 	{
 		ST7789_TransmitData(LCDBuffer, sizeof(LCDBuffer));
 	}
@@ -789,20 +788,20 @@ void ST7789_PutString(uint16_t XPos, uint16_t YPos, const char *Str, ST7789_Font
 		
 	}
 #endif
-	uint8_t count_str;
+#if 1
+	/*uint8_t count_str;
 	uint32_t heightCounter;
-	uint32_t widthCounter;
-	uint32_t fontByte;
+	uint32_t widthCounter;*/
+	uint32_t fontByte=0;
 	uint16_t count_buf=0;
 
-	uint8_t sim_in_str = strlen(Str);
+	size_t sim_in_str = strlen(Str);
 	uint8_t max_in_str = (ST7789_WIDTH_MODIFIED - 1 - XPos)/Font.Width;
 	if(max_in_str == 0) return;
 
 
-	if(strlen(Str)%max_in_str == 0) count_str = strlen(Str) / max_in_str;
-	else count_str = strlen(Str) / max_in_str+1;
-
+	/*if(strlen(Str)%max_in_str == 0) count_str = strlen(Str) / max_in_str;
+	else count_str = strlen(Str) / max_in_str+1;*/
 	for(uint8_t j = 0;j<Font.Height;++j)
 	{
 		for(uint8_t i = 0;i< sim_in_str;++i)
@@ -826,11 +825,10 @@ void ST7789_PutString(uint16_t XPos, uint16_t YPos, const char *Str, ST7789_Font
 		}
 	}
 
-
 	//ST7789_SetWindowAddress(XPos, YPos, ST7789_WIDTH_MODIFIED - 1, ST7789_HEIGHT_MODIFIED - 1);
 	ST7789_SetWindowAddress(XPos, YPos, XPos+sim_in_str*Font.Width-1, YPos+Font.Height-1);
 	ST7789_TransmitData(LCDBuffer, count_buf);
-
+#endif
 	
 }
 

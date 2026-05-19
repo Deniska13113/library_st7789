@@ -1,3 +1,5 @@
+*
+
 !*/
 !Core/
 !Core/Src/
@@ -7,4 +9,4 @@
 !Core/Src/st7789_font.c
 !Core/Inc/st7789.h
 !Core/Inc/st7789_font.h
-!Core/Inc/st7789_conf.h
+!Core/Inc/st7789_conf.h.h

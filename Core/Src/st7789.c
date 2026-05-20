@@ -793,7 +793,7 @@ void ST7789_PutString(uint16_t XPos, uint16_t YPos, const char *Str, ST7789_Font
 	/*uint32_t heightCounter;
 	uint32_t widthCounter;*/
 	uint16_t fontByte=0;
-	uint16_t count_buf=0;
+	uint16_t count_buf=0, need_send=0;
 	uint16_t Xend=0, Yend=0;
 	size_t sim_in_str = strlen(Str);
 	uint8_t max_in_str = (ST7789_WIDTH_MODIFIED - 1 - XPos)/Font.Width;
@@ -802,23 +802,29 @@ void ST7789_PutString(uint16_t XPos, uint16_t YPos, const char *Str, ST7789_Font
 	if(strlen(Str)%max_in_str == 0) count_str = strlen(Str) / max_in_str;
 	else count_str = strlen(Str) / max_in_str+1;
 
+	if(sim_in_str>max_in_str) need_send = max_in_str;
+	else need_send = sim_in_str;
+
 	if(count_str>1)
 	{
 		Xend = 320-1;
 	}
 	else
 	{
-		Xend = XPos + sim_in_str*Font.Width;
+		Xend = XPos + sim_in_str*Font.Width-1;
 	}
-	Yend = YPos + count_str*Font.Height-1;
+	Yend = 239;
 
 	ST7789_SetWindowAddress(XPos, YPos, Xend, Yend);
 
-		for (uint8_t j = 0; j < Font.Height; ++j)
+
+	for(uint8_t t = 0;t<count_str;++t)
+	{
+	for (uint8_t j = 0; j < Font.Height; ++j)
 		{
-			for (uint8_t i = 0; i < sim_in_str; ++i)
+			for (uint8_t i = 0; i < need_send; ++i)
 			{
-				fontByte = Font.Data[(Str[i] - 32) * Font.Height + j];
+				fontByte = Font.Data[(Str[i + t*max_in_str] - 32) * Font.Height + j];
 				for (uint8_t h = 0; h < Font.Width; ++h)
 				{
 					if ((fontByte << h) & 0x8000) {
@@ -832,16 +838,16 @@ void ST7789_PutString(uint16_t XPos, uint16_t YPos, const char *Str, ST7789_Font
 						LCDBuffer[count_buf + 1] = BackgroundColor & 0xFF;
 						count_buf += 2;
 					}
-					if(count_buf == sizeof(LCDBuffer))
+					if(count_buf+2 == sizeof(LCDBuffer))
 					{
-						ST7789_TransmitData(LCDBuffer, count_buf);
+						ST7789_TransmitData(LCDBuffer, count_buf-1);
 						count_buf=0;
 					}
 				}
 			}
 		}
-	//ST7789_SetWindowAddress(XPos, YPos, ST7789_WIDTH_MODIFIED - 1, ST7789_HEIGHT_MODIFIED - 1);
-	//ST7789_SetWindowAddress(XPos, YPos, XPos+sim_in_str*Font.Width-1, YPos+Font.Height-1);
+	need_send -= max_in_str*t;
+	}
 	ST7789_TransmitData(LCDBuffer, count_buf);
 #endif
 	

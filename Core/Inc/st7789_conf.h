@@ -105,7 +105,7 @@ extern SPI_HandleTypeDef hspi1;
 	
 */
 
-#define ST7789_HOR_LEN 	     48 // Buffer length factor
+#define ST7789_HOR_LEN 	     40 // Buffer length factor
 
 /* ~~~~~~~~~~~~~~~~~~ Options ~~~~~~~~~~~~~~~~~~ */
 #define ST7789_WIDTH     240

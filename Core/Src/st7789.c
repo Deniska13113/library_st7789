@@ -756,7 +756,7 @@ void ST7789_PutChar(uint16_t XPos, uint16_t YPos, char Ch, ST7789_FontTypeDef Fo
 
 void ST7789_PutString(uint16_t XPos, uint16_t YPos, const char *Str, ST7789_FontTypeDef Font, ST7789_ColorTypeDef Color, ST7789_ColorTypeDef BackgroundColor)
 {
-#if 0
+#if 1
 	/* --------------- Put Characters --------------- */
 	while (*Str)
 	{
@@ -788,13 +788,13 @@ void ST7789_PutString(uint16_t XPos, uint16_t YPos, const char *Str, ST7789_Font
 		
 	}
 #endif
-#if 1
+#if 0
 	uint8_t count_str;
 	/*uint32_t heightCounter;
 	uint32_t widthCounter;*/
 	uint16_t fontByte=0;
 	uint16_t count_buf=0, need_send=0;
-	uint16_t Xend=0, Yend=0;
+	uint16_t Xend=0, Yend=239;
 	size_t sim_in_str = strlen(Str);
 	uint8_t max_in_str = (ST7789_WIDTH_MODIFIED - 1 - XPos)/Font.Width;
 	if(max_in_str == 0) return;
@@ -805,16 +805,15 @@ void ST7789_PutString(uint16_t XPos, uint16_t YPos, const char *Str, ST7789_Font
 	if(sim_in_str>max_in_str) need_send = max_in_str;
 	else need_send = sim_in_str;
 
-	if(count_str>1)
-	{
-		Xend = 320-1;
-	}
+	/*if(count_str>1)
+		Xend = XPos + max_in_str*Font.Width-1;
 	else
-	{
 		Xend = XPos + sim_in_str*Font.Width-1;
-	}
 	Yend = 239;
 
+	ST7789_SetWindowAddress(XPos, YPos, Xend, Yend);*/
+
+	Xend = XPos + need_send*Font.Width-1;
 	ST7789_SetWindowAddress(XPos, YPos, Xend, Yend);
 
 
@@ -838,17 +837,25 @@ void ST7789_PutString(uint16_t XPos, uint16_t YPos, const char *Str, ST7789_Font
 						LCDBuffer[count_buf + 1] = BackgroundColor & 0xFF;
 						count_buf += 2;
 					}
-					if(count_buf+2 == sizeof(LCDBuffer))
+					if(count_buf == sizeof(LCDBuffer))
 					{
-						ST7789_TransmitData(LCDBuffer, count_buf-1);
+						ST7789_TransmitData(LCDBuffer, count_buf);
 						count_buf=0;
 					}
 				}
 			}
 		}
-	need_send -= max_in_str*t;
-	}
 	ST7789_TransmitData(LCDBuffer, count_buf);
+	count_buf=0;
+		if(t+2<count_str)
+		{
+			need_send = max_in_str;
+		}
+		else need_send = sim_in_str%max_in_str;
+		Xend = XPos + need_send*Font.Width-1;
+		ST7789_SetWindowAddress(XPos, YPos+Font.Height*(t+1), Xend, Yend);
+	}
+	//ST7789_TransmitData(LCDBuffer, count_buf);
 #endif
 	
 }

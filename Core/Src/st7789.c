@@ -789,44 +789,59 @@ void ST7789_PutString(uint16_t XPos, uint16_t YPos, const char *Str, ST7789_Font
 	}
 #endif
 #if 1
-	/*uint8_t count_str;
-	uint32_t heightCounter;
+	uint8_t count_str;
+	/*uint32_t heightCounter;
 	uint32_t widthCounter;*/
-	uint32_t fontByte=0;
+	uint16_t fontByte=0;
 	uint16_t count_buf=0;
-
+	uint16_t Xend=0, Yend=0;
 	size_t sim_in_str = strlen(Str);
 	uint8_t max_in_str = (ST7789_WIDTH_MODIFIED - 1 - XPos)/Font.Width;
 	if(max_in_str == 0) return;
 
+	if(strlen(Str)%max_in_str == 0) count_str = strlen(Str) / max_in_str;
+	else count_str = strlen(Str) / max_in_str+1;
 
-	/*if(strlen(Str)%max_in_str == 0) count_str = strlen(Str) / max_in_str;
-	else count_str = strlen(Str) / max_in_str+1;*/
-	for(uint8_t j = 0;j<Font.Height;++j)
+	if(count_str>1)
 	{
-		for(uint8_t i = 0;i< sim_in_str;++i)
+		Xend = 320-1;
+	}
+	else
+	{
+		Xend = XPos + sim_in_str*Font.Width;
+	}
+	Yend = YPos + count_str*Font.Height-1;
+
+	ST7789_SetWindowAddress(XPos, YPos, Xend, Yend);
+
+		for (uint8_t j = 0; j < Font.Height; ++j)
 		{
-			fontByte = Font.Data[(Str[i] - 32) * Font.Height + j];
-			for(uint8_t h=0;h<Font.Width;++h)
+			for (uint8_t i = 0; i < sim_in_str; ++i)
 			{
-				if((fontByte << h) & 0x8000)
+				fontByte = Font.Data[(Str[i] - 32) * Font.Height + j];
+				for (uint8_t h = 0; h < Font.Width; ++h)
 				{
-					LCDBuffer[count_buf] = Color >> 8;
-					LCDBuffer[count_buf+1] = Color & 0xFF;
-					count_buf+=2;
-				}
-				else
-				{
-					LCDBuffer[count_buf] = BackgroundColor >> 8;
-					LCDBuffer[count_buf+1] = BackgroundColor & 0xFF;
-					count_buf+=2;
+					if ((fontByte << h) & 0x8000) {
+						LCDBuffer[count_buf] = Color >> 8;
+						LCDBuffer[count_buf + 1] = Color & 0xFF;
+						count_buf += 2;
+					}
+					else
+					{
+						LCDBuffer[count_buf] = BackgroundColor >> 8;
+						LCDBuffer[count_buf + 1] = BackgroundColor & 0xFF;
+						count_buf += 2;
+					}
+					if(count_buf == sizeof(LCDBuffer))
+					{
+						ST7789_TransmitData(LCDBuffer, count_buf);
+						count_buf=0;
+					}
 				}
 			}
 		}
-	}
-
 	//ST7789_SetWindowAddress(XPos, YPos, ST7789_WIDTH_MODIFIED - 1, ST7789_HEIGHT_MODIFIED - 1);
-	ST7789_SetWindowAddress(XPos, YPos, XPos+sim_in_str*Font.Width-1, YPos+Font.Height-1);
+	//ST7789_SetWindowAddress(XPos, YPos, XPos+sim_in_str*Font.Width-1, YPos+Font.Height-1);
 	ST7789_TransmitData(LCDBuffer, count_buf);
 #endif
 	

@@ -532,19 +532,31 @@ void ST7789_DrawFilledRectangle(uint16_t XPos, uint16_t YPos, uint16_t Width, ui
 #endif
 	ST7789_SetWindowAddress(XPos, YPos, XPos+Width-1, YPos+Height-1);
 	uint32_t size_trans = Width*Height*2;
-	uint16_t count_buf=0;
-	for(uint32_t i = size_trans;i>0;--i)
+	uint32_t i;
+	//uint16_t count_buf=0;
+
+	if(size_trans/sizeof(LCDBuffer) == 0)
 	{
-		LCDBuffer[count_buf] = Color>>8;
-		LCDBuffer[count_buf+1] = Color & 0xFF;
-		count_buf+=2;
-		if(count_buf == sizeof(LCDBuffer))
-		{
-			ST7789_TransmitData(LCDBuffer, count_buf);
-			count_buf = 0;
-		}
+	for(i = 0;i<size_trans;i+=2)
+	{
+		LCDBuffer[i] = Color>>8;
+		LCDBuffer[i+1] = Color & 0xFF;
 	}
-	ST7789_TransmitData(LCDBuffer, count_buf);
+	ST7789_TransmitData(LCDBuffer, i);
+	}
+	else
+	{
+		for(i = 0;i<sizeof(LCDBuffer);i+=2)
+			{
+				LCDBuffer[i] = Color>>8;
+				LCDBuffer[i+1] = Color & 0xFF;
+			}
+		for(uint8_t j = 0;j<size_trans/sizeof(LCDBuffer);++j)
+		{
+			ST7789_TransmitData(LCDBuffer, sizeof(LCDBuffer));
+		}
+		ST7789_TransmitData(LCDBuffer, size_trans%sizeof(LCDBuffer));
+	}
 	
 }
 

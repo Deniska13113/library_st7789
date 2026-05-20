@@ -756,7 +756,7 @@ void ST7789_PutChar(uint16_t XPos, uint16_t YPos, char Ch, ST7789_FontTypeDef Fo
 
 void ST7789_PutString(uint16_t XPos, uint16_t YPos, const char *Str, ST7789_FontTypeDef Font, ST7789_ColorTypeDef Color, ST7789_ColorTypeDef BackgroundColor)
 {
-#if 1
+#if 0
 	/* --------------- Put Characters --------------- */
 	while (*Str)
 	{
@@ -788,19 +788,25 @@ void ST7789_PutString(uint16_t XPos, uint16_t YPos, const char *Str, ST7789_Font
 		
 	}
 #endif
-#if 0
+#if 1
 	uint8_t count_str;
 	/*uint32_t heightCounter;
 	uint32_t widthCounter;*/
 	uint16_t fontByte=0;
 	uint16_t count_buf=0, need_send=0;
 	uint16_t Xend=0, Yend=239;
+
+
 	size_t sim_in_str = strlen(Str);
 	uint8_t max_in_str = (ST7789_WIDTH_MODIFIED - 1 - XPos)/Font.Width;
+
+
 	if(max_in_str == 0) return;
 
 	if(strlen(Str)%max_in_str == 0) count_str = strlen(Str) / max_in_str;
 	else count_str = strlen(Str) / max_in_str+1;
+
+	if(YPos+Font.Height*count_str>239) return;
 
 	if(sim_in_str>max_in_str) need_send = max_in_str;
 	else need_send = sim_in_str;
@@ -847,7 +853,7 @@ void ST7789_PutString(uint16_t XPos, uint16_t YPos, const char *Str, ST7789_Font
 		}
 	ST7789_TransmitData(LCDBuffer, count_buf);
 	count_buf=0;
-		if(t+2<count_str)
+		if(t+2<count_str || sim_in_str%max_in_str==0)
 		{
 			need_send = max_in_str;
 		}
@@ -857,7 +863,82 @@ void ST7789_PutString(uint16_t XPos, uint16_t YPos, const char *Str, ST7789_Font
 	}
 	//ST7789_TransmitData(LCDBuffer, count_buf);
 #endif
-	
 }
 
+
+void ST7789_PutString_Ramk(uint16_t XStart, uint16_t YStart,uint16_t XEnd,uint16_t YEnd, const char *Str, ST7789_FontTypeDef Font, ST7789_ColorTypeDef Color, ST7789_ColorTypeDef BackgroundColor)
+{
+	uint8_t count_str;
+	/*uint32_t heightCounter;
+	uint32_t widthCounter;*/
+	uint16_t fontByte=0;
+	uint16_t count_buf=0, need_send=0;
+	uint16_t Xend=0, Yend=239;
+
+
+	size_t sim_in_str = strlen(Str);
+	uint8_t max_in_str = (abs(XEnd - XStart))/Font.Width;
+
+
+	if(max_in_str == 0) return;
+
+	if(strlen(Str)%max_in_str == 0) count_str = strlen(Str) / max_in_str;
+	else count_str = strlen(Str) / max_in_str+1;
+
+	if(YStart+Font.Height*count_str>YEnd || YStart+Font.Height*count_str>240-1) return;
+
+	if(sim_in_str>max_in_str) need_send = max_in_str;
+	else need_send = sim_in_str;
+
+	/*if(count_str>1)
+		Xend = XPos + max_in_str*Font.Width-1;
+	else
+		Xend = XPos + sim_in_str*Font.Width-1;
+	Yend = 239;
+
+	ST7789_SetWindowAddress(XPos, YPos, Xend, Yend);*/
+
+	Xend = XStart + need_send*Font.Width-1;
+	ST7789_SetWindowAddress(XStart, YStart, Xend, Yend);
+
+
+	for(uint8_t t = 0;t<count_str;++t)
+	{
+	for (uint8_t j = 0; j < Font.Height; ++j)
+		{
+			for (uint8_t i = 0; i < need_send; ++i)
+			{
+				fontByte = Font.Data[(Str[i + t*max_in_str] - 32) * Font.Height + j];
+				for (uint8_t h = 0; h < Font.Width; ++h)
+				{
+					if ((fontByte << h) & 0x8000) {
+						LCDBuffer[count_buf] = Color >> 8;
+						LCDBuffer[count_buf + 1] = Color & 0xFF;
+						count_buf += 2;
+					}
+					else
+					{
+						LCDBuffer[count_buf] = BackgroundColor >> 8;
+						LCDBuffer[count_buf + 1] = BackgroundColor & 0xFF;
+						count_buf += 2;
+					}
+					if(count_buf == sizeof(LCDBuffer))
+					{
+						ST7789_TransmitData(LCDBuffer, count_buf);
+						count_buf=0;
+					}
+				}
+			}
+		}
+	ST7789_TransmitData(LCDBuffer, count_buf);
+	count_buf=0;
+		if(t+2<count_str || sim_in_str%max_in_str==0)
+		{
+			need_send = max_in_str;
+		}
+		else need_send = sim_in_str%max_in_str;
+		Xend = XStart + need_send*Font.Width-1;
+		ST7789_SetWindowAddress(XStart, YStart+Font.Height*(t+1), Xend, Yend);
+	}
+}
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ End of the program ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */

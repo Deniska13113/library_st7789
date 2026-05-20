@@ -7,14 +7,14 @@
 ~ Brief  :
 ~ Support:
            E-Mail : Majid.Derhambakhsh@gmail.com (subject : Embedded Library Support)
-           
+
            Github : https://github.com/Majid-Derhambakhsh
 ------------------------------------------------------------------------------
-~ Description:    
+~ Description:
 
-~ Attention  :    
-                  
-~ Changes    :    
+~ Attention  :
+
+~ Changes    :
 ------------------------------------------------------------------------------
 */
 

@@ -504,7 +504,7 @@ void ST7789_DrawRectangle(uint16_t XStart, uint16_t YStart, uint16_t XEnd, uint1
 
 void ST7789_DrawFilledRectangle(uint16_t XPos, uint16_t YPos, uint16_t Width, uint16_t Height, ST7789_ColorTypeDef Color)
 {
-	
+#if 0
 	uint8_t heightCounter;
 	
 	/* -------------- Position Control -------------- */
@@ -529,6 +529,22 @@ void ST7789_DrawFilledRectangle(uint16_t XPos, uint16_t YPos, uint16_t Width, ui
 	{
 		ST7789_DrawLine(XPos, YPos + heightCounter, XPos + Width, YPos + heightCounter, Color);
 	}
+#endif
+	ST7789_SetWindowAddress(XPos, YPos, XPos+Width-1, YPos+Height-1);
+	uint32_t size_trans = Width*Height*2;
+	uint16_t count_buf=0;
+	for(uint32_t i = size_trans;i>0;--i)
+	{
+		LCDBuffer[count_buf] = Color>>8;
+		LCDBuffer[count_buf+1] = Color & 0xFF;
+		count_buf+=2;
+		if(count_buf == sizeof(LCDBuffer))
+		{
+			ST7789_TransmitData(LCDBuffer, count_buf);
+			count_buf = 0;
+		}
+	}
+	ST7789_TransmitData(LCDBuffer, count_buf);
 	
 }
 
@@ -829,7 +845,10 @@ void ST7789_PutString(uint16_t XPos, uint16_t YPos, const char *Str, ST7789_Font
 		{
 			for (uint8_t i = 0; i < need_send; ++i)
 			{
-				fontByte = Font.Data[(Str[i + t*max_in_str] - 32) * Font.Height + j];
+				if(Str[i + t*max_in_str]<127)
+									fontByte = Font.Data[(Str[i + t*max_in_str] - 32) * Font.Height + j];
+								else
+									fontByte = Font.Data[(Str[i + t*max_in_str] - 96) * Font.Height + j];
 				for (uint8_t h = 0; h < Font.Width; ++h)
 				{
 					if ((fontByte << h) & 0x8000) {
@@ -908,7 +927,10 @@ void ST7789_PutString_Ramk(uint16_t XStart, uint16_t YStart,uint16_t XEnd,uint16
 		{
 			for (uint8_t i = 0; i < need_send; ++i)
 			{
-				fontByte = Font.Data[(Str[i + t*max_in_str] - 32) * Font.Height + j];
+				if(Str[i + t*max_in_str]<127)
+					fontByte = Font.Data[(Str[i + t*max_in_str] - 32) * Font.Height + j];
+				else
+					fontByte = Font.Data[(Str[i + t*max_in_str] - 96) * Font.Height + j];
 				for (uint8_t h = 0; h < Font.Width; ++h)
 				{
 					if ((fontByte << h) & 0x8000) {
@@ -940,5 +962,15 @@ void ST7789_PutString_Ramk(uint16_t XStart, uint16_t YStart,uint16_t XEnd,uint16
 		Xend = XStart + need_send*Font.Width-1;
 		ST7789_SetWindowAddress(XStart, YStart+Font.Height*(t+1), Xend, Yend);
 	}
+}
+
+
+void ST7789_EnterSleepMode(void)
+{
+	ST7789_TransmitCommand(ST7789_CMD_SLPIN);
+}
+void ST7789_SleepModeExit(void)
+{
+	ST7789_TransmitCommand(ST7789_CMD_SLPOUT);
 }
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ End of the program ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */

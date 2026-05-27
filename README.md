@@ -7,7 +7,7 @@
 
 ## Boost and add funcions
 
-#### Were bossted this funcion
+#### Were boosted this function
 
 ```c++
 void ST7789_FillScreen(ST7789_ColorTypeDef Color);

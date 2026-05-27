@@ -26,7 +26,9 @@ void ST7789_SleepModeExit(void);
 ```
 
 
-## If you need more RAM you should go to Core -> Inc -> st7789_conf.h and change ST7789_HOR_LEN but the value must be ST7789_HEIGHT % ST7789_HOR_LEN == 0
+#### If you need more RAM you should go to 
+Core -> Inc -> st7789_conf.h 
+and change ST7789_HOR_LEN but the value must be ST7789_HEIGHT % ST7789_HOR_LEN == 0
 
 
 
@@ -38,4 +40,4 @@ If anyone wants to do this, please send a pull request.
 
 
 
-To contact me, use Telegram To contact me, use Telegram @Deniska13r
+To contact me, use Telegram @Deniska13r

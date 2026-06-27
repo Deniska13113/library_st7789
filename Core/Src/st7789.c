@@ -194,7 +194,7 @@ void ST7789_Init(void)
 	ST7789_TransmitCommand(ST7789_CMD_NVGAMCTRL);
 	ST7789_TransmitData(NVGAMCTRL_Default, 14);
 	
-	ST7789_TransmitCommand(ST7789_CMD_INVOFF); // Inversion ON
+	ST7789_TransmitCommand(ST7789_CMD_INVOFF); // Inversion OFF
 	ST7789_TransmitCommand(ST7789_CMD_SLPOUT); // Out of sleep mode
 	ST7789_TransmitCommand(ST7789_CMD_NORON); // Normal Display on
 	ST7789_TransmitCommand(ST7789_CMD_DISPON); // Main screen turned on
@@ -264,13 +264,6 @@ void ST7789_InvertColors(ST7789_InvTypeDef Invert)
 	
 }
 
-void ST7789_TearEffect(ST7789_ColorModeTypeDef Tear)
-{
-	
-	/* -------------- Transmit Command -------------- */
-	ST7789_TransmitCommand(Tear ? ST7789_TEAR_ON : ST7789_TEAR_OFF);
-	
-}
 
 /* ...................... Color Converting ..................... */
 ST7789_ColorTypeDef ST7789_Color_GetFromRGB(uint8_t R, uint8_t G, uint8_t B)

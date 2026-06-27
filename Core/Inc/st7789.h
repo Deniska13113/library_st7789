@@ -340,19 +340,11 @@ typedef enum /* Color Invert */
 
 }ST7789_InvTypeDef;
 
-typedef enum /* Tear */
-{
-
-	ST7789_TEAR_OFF = 0x34,
-	ST7789_TEAR_ON  = 0x35,
-
-}ST7789_TearTypeDef;
 
 typedef enum /* Color Mode */
 {
 
 	ST7789_COLOR_MODE_16BIT = 0x55, //  RGB565 (16bit)
-	ST7789_COLOR_MODE_18BIT = 0x66, //  RGB666 (18bit)
 
 }ST7789_ColorModeTypeDef;
 
@@ -466,28 +458,8 @@ void ST7789_InvertColors(ST7789_InvTypeDef Invert);
  *         ...
  *
  */
-void ST7789_TearEffect(ST7789_ColorModeTypeDef Tear);
 
-/* ...................... Color Converting ..................... */
-/*
- * Function: ST7789_Color_GetFromRGB
- * ---------------------------------
- * Convert RGB color format to RGB565 format
- *
- * Param  :
- *         R : Red value
- *         G : Green value
- *         B : Blue value
- *
- * Returns:
- *         RGB565 Code : Converted RGB value
- *
- * Example:
- *         ST7789_ColorTypeDef color = ST7789_Color_GetFromRGB(252, 3, 140);
- *         ...
- *
- */
-ST7789_ColorTypeDef ST7789_Color_GetFromRGB(uint8_t R, uint8_t G, uint8_t B);
+ ST7789_ColorTypeDef ST7789_Color_GetFromRGB(uint8_t R, uint8_t G, uint8_t B);
 
 /*
  * Function: ST7789_Color_GetFromHex
